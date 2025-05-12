@@ -1,0 +1,77 @@
+use clap::{Command, ArgMatches, ArgAction, Arg};
+
+pub const VERSION: &str = "0.1";
+
+pub struct Cli {
+    matches: ArgMatches,
+    pub unmatched_args: Vec<String>,
+}
+
+impl Cli {
+    pub fn parse() -> Self {
+        let matches = Command::new("liebe")
+            .version(VERSION)
+            .author("coppamocha")
+            .about("A next-generation build system without a headache")
+            .subcommand(
+                Command::new("run")
+                    .about("Build and run the project")
+                    .arg(
+                        Arg::new("target")
+                            .help("Target to build (and run). eg- debug, release")
+                            .required(true)
+                            .index(1),
+                    ),
+            )
+            .subcommand(
+                Command::new("build")
+                    .about("Build the project")
+                    .arg(
+                        Arg::new("target")
+                            .help("Target to build. eg- debug, release")
+                            .required(true)
+                            .index(1),
+                    ),
+            )
+            .arg(
+                Arg::new("verbose")
+                    .short('v')
+                    .help("Allow a verbose output")
+                    .action(ArgAction::SetTrue),
+            )
+            .arg(
+                Arg::new("lua-args")
+                    .num_args(0..)
+                    .trailing_var_arg(true)
+                    .allow_hyphen_values(true),
+            )
+            .get_matches();
+        let unmatched_args = matches
+            .get_many::<String>("lua-args")
+            .unwrap_or_default()
+            .cloned()
+            .collect::<Vec<String>>();
+        Self {
+            unmatched_args,
+            matches,
+        }
+    }
+
+    pub fn apply_callbacks(self) {
+        match self.matches.subcommand() {
+            Some(("build", subc)) => {
+                let target = subc.get_one::<String>("target").expect("Expected a target to build");
+                Self::on_build(target);
+            },
+            Some(("run", subc)) => {
+                let target = subc.get_one::<String>("target").expect("Expected a target to build and run");
+                Self::on_run(target);
+            },
+            _ => {}
+        }
+        self.matches.get_flag("verbose");
+    }
+
+    fn on_build(target: &String) {}
+    fn on_run(target: &String) {}
+}

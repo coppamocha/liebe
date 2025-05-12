@@ -5,5 +5,6 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.98"
-mlua = { version = "0.10.3", features = ["anyhow", "luajit", "serialize"] }
-serde = { version = "1.0.219", features = ["derive"] }
+clap = "4.5.38"
+mlua = { version = "0.10.3", features = ["anyhow", "luajit"] }
+toml = "0.8.22"
