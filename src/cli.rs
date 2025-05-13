@@ -1,4 +1,5 @@
 use clap::{Arg, ArgAction, ArgMatches, Command};
+use mlua::Table;
 
 use crate::{error::set_verbose, luaapi::LuaApi};
 
@@ -72,9 +73,15 @@ impl Cli {
             _ => {}
         }
         set_verbose(self.matches.get_flag("verbose"));
-        
     }
 
-    fn on_build(target: &String, lua: &LuaApi) {}
+    fn on_build(target: &String, lua: &LuaApi) {
+        let context = lua.create_table();
+        context
+            .set("target", target.to_string())
+            .expect("Couldnt set value to build_cfg");
+        lua.add_context("build_cfg", context);
+        lua.request_data("create_build_command", |table: Table| {});
+    }
     fn on_run(target: &String, lua: &LuaApi) {}
 }

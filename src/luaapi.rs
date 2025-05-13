@@ -56,4 +56,38 @@ impl LuaApi {
             .exec()
             .expect("Syntax error in lang-script");
     }
+
+    pub fn request_data<F>(&self, func: &str, callback: F)
+    where
+        F: Fn(mlua::Table) -> () + Send + 'static,
+    {
+        let rust_callback = self
+            .lua
+            .create_function(move |_, table: mlua::Table| {
+                callback(table);
+                Ok(())
+            })
+            .log("Cannot attach callback");
+        let luafn: mlua::Function = self
+            .lua
+            .globals()
+            .get(func)
+            .log("Couldnt find a necessary function inside lang-script");
+        luafn
+            .call::<()>(rust_callback)
+            .log("Error running a lang-script callback function");
+    }
+
+    pub fn add_context(&self, name: &str, data: mlua::Table) {
+        self.lua
+            .globals()
+            .set(name, data)
+            .log("Couldnt inject global context");
+    }
+
+    pub fn create_table(&self) -> mlua::Table {
+        self.lua
+            .create_table()
+            .log("Error creating a context table")
+    }
 }
