@@ -1,4 +1,6 @@
-use clap::{Command, ArgMatches, ArgAction, Arg};
+use clap::{Arg, ArgAction, ArgMatches, Command};
+
+use crate::{error::set_verbose, luaapi::LuaApi};
 
 pub const VERSION: &str = "0.1";
 
@@ -14,24 +16,20 @@ impl Cli {
             .author("coppamocha")
             .about("A next-generation build system without a headache")
             .subcommand(
-                Command::new("run")
-                    .about("Build and run the project")
-                    .arg(
-                        Arg::new("target")
-                            .help("Target to build (and run). eg- debug, release")
-                            .required(true)
-                            .index(1),
-                    ),
+                Command::new("run").about("Build and run the project").arg(
+                    Arg::new("target")
+                        .help("Target to build (and run). eg- debug, release")
+                        .required(true)
+                        .index(1),
+                ),
             )
             .subcommand(
-                Command::new("build")
-                    .about("Build the project")
-                    .arg(
-                        Arg::new("target")
-                            .help("Target to build. eg- debug, release")
-                            .required(true)
-                            .index(1),
-                    ),
+                Command::new("build").about("Build the project").arg(
+                    Arg::new("target")
+                        .help("Target to build. eg- debug, release")
+                        .required(true)
+                        .index(1),
+                ),
             )
             .arg(
                 Arg::new("verbose")
@@ -57,21 +55,26 @@ impl Cli {
         }
     }
 
-    pub fn apply_callbacks(self) {
+    pub fn apply_callbacks(self, lua: &LuaApi) {
         match self.matches.subcommand() {
             Some(("build", subc)) => {
-                let target = subc.get_one::<String>("target").expect("Expected a target to build");
-                Self::on_build(target);
-            },
+                let target = subc
+                    .get_one::<String>("target")
+                    .expect("Expected a target to build");
+                Self::on_build(target, lua);
+            }
             Some(("run", subc)) => {
-                let target = subc.get_one::<String>("target").expect("Expected a target to build and run");
-                Self::on_run(target);
-            },
+                let target = subc
+                    .get_one::<String>("target")
+                    .expect("Expected a target to build and run");
+                Self::on_run(target, lua);
+            }
             _ => {}
         }
-        self.matches.get_flag("verbose");
+        set_verbose(self.matches.get_flag("verbose"));
+        
     }
 
-    fn on_build(target: &String) {}
-    fn on_run(target: &String) {}
+    fn on_build(target: &String, lua: &LuaApi) {}
+    fn on_run(target: &String, lua: &LuaApi) {}
 }
