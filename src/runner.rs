@@ -1,4 +1,4 @@
-use std::process::{Child, ChildStderr, Command, Stdio};
+use std::process::{Child, ChildStderr, Command, Stdio, exit};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -12,30 +12,26 @@ fn read_child_stdout_lines(stdout: Option<ChildStdout>) {
     if stdout.is_none() {
         return;
     }
-    let reader = BufReader::new(stdout.unwrap());
-    println!(
-        "{}",
-        reader
-            .lines()
-            .filter_map(Result::ok)
-            .collect::<Vec<String>>()
-            .join("\n")
-    );
+    let reader = BufReader::new(stdout.unwrap())
+        .lines()
+        .filter_map(Result::ok)
+        .collect::<Vec<String>>();
+    if !reader.is_empty() {
+        println!("{}", reader.join("\n"));
+    }
 }
 
 fn read_child_stderr_lines(stderr: Option<ChildStderr>) {
     if stderr.is_none() {
         return;
     }
-    let reader = BufReader::new(stderr.unwrap());
-    println!(
-        "{}",
-        reader
-            .lines()
-            .filter_map(Result::ok)
-            .collect::<Vec<String>>()
-            .join("\n")
-    );
+    let reader = BufReader::new(stderr.unwrap())
+        .lines()
+        .filter_map(Result::ok)
+        .collect::<Vec<String>>();
+    if !reader.is_empty() {
+        println!("{}", reader.join("\n"));
+    }
 }
 
 struct Task {
@@ -62,8 +58,12 @@ impl Task {
             Ok(Some(code)) => {
                 read_child_stdout_lines(self.proc.stdout.take());
                 read_child_stderr_lines(self.proc.stderr.take());
-                println!("Process exited with {}", code);
+                println!("Process exited with {}", code.code().unwrap_or_default());
                 true
+            }
+            Err(e) => {
+                eprintln!("Error in child process: {}", e);
+                exit(1);
             }
             _ => false,
         }
