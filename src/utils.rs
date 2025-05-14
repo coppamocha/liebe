@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2025 coppamocha
 use std::env;
 use std::path::Path;
 

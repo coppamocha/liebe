@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2025 coppamocha
 use std::process::{Child, ChildStderr, Command, Stdio, exit};
 use std::thread::sleep;
 use std::time::Duration;
@@ -6,7 +8,7 @@ use crate::error::ExitOnError;
 use std::io::{BufRead, BufReader};
 use std::process::ChildStdout;
 
-type CommandStr<'a> = Vec<&'a str>;
+pub type CommandStr = Vec<String>;
 
 fn read_child_stdout_lines(stdout: Option<ChildStdout>) {
     if stdout.is_none() {
@@ -42,7 +44,7 @@ struct Task {
 impl Task {
     pub fn run(cmd: CommandStr) -> Self {
         println!("Spawning command: {}", cmd.join(" "));
-        let proc = Command::new(cmd[0])
+        let proc = Command::new(cmd[0].clone())
             .args(&cmd[1..])
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())

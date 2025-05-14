@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2025 coppamocha
 use crate::error::ExitOnError;
 use crate::utils::{self, *};
 use mlua::prelude::*;
@@ -57,25 +59,18 @@ impl LuaApi {
             .expect("Syntax error in lang-script");
     }
 
-    pub fn request_data<F>(&self, func: &str, callback: F)
+    pub fn request_data<G>(&self, func: &str) -> G
     where
-        F: Fn(mlua::Table) -> () + Send + 'static,
+        G: FromLuaMulti,
     {
-        let rust_callback = self
-            .lua
-            .create_function(move |_, table: mlua::Table| {
-                callback(table);
-                Ok(())
-            })
-            .log("Cannot attach callback");
         let luafn: mlua::Function = self
             .lua
             .globals()
             .get(func)
             .log("Couldnt find a necessary function inside lang-script");
         luafn
-            .call::<()>(rust_callback)
-            .log("Error running a lang-script callback function");
+            .call::<G>(())
+            .log("Error running a lang-script callback function")
     }
 
     pub fn add_context(&self, name: &str, data: mlua::Table) {
