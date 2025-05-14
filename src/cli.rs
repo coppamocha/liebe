@@ -4,6 +4,7 @@ use crate::{
     error::set_verbose,
     luaapi::LuaApi,
     runner::{CommandStr, Runner},
+    stage::BuildStage,
 };
 use clap::{Arg, ArgAction, ArgMatches, Command};
 
@@ -40,7 +41,7 @@ impl Cli {
             .set("target", target.to_string())
             .expect("Couldnt set value to build_cfg");
         lua.add_context("build_cfg", context);
-        let staged_cmds: Vec<Vec<CommandStr>> = lua.request_data("create_build_command");
+        let staged_cmds: Vec<BuildStage> = lua.request_data("create_build_command");
         for i in staged_cmds {
             let runner = Runner::new(i);
             runner.wait();

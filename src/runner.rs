@@ -5,6 +5,7 @@ use std::thread::sleep;
 use std::time::Duration;
 
 use crate::error::ExitOnError;
+use crate::stage::BuildStage;
 use std::io::{BufRead, BufReader};
 use std::process::ChildStdout;
 
@@ -77,9 +78,9 @@ pub struct Runner {
 }
 
 impl Runner {
-    pub fn new(cmds: Vec<CommandStr>) -> Self {
+    pub fn new(stage: BuildStage) -> Self {
         let mut runner = Self { tasks: Vec::new() };
-        for cmd in cmds {
+        for cmd in stage.commands {
             runner.tasks.push(Task::run(cmd));
         }
         runner
