@@ -1,10 +1,7 @@
-[package]
-name = "liebe"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = [ "liebe",
+    "lcore", # liebe_core 
+    "mlua_export"
+]
+resolver = "2"
 
-[dependencies]
-anyhow = "1.0.98"
-clap = "4.5.38"
-mlua = { version = "0.10.3", features = ["anyhow", "luajit"] }
-toml = "0.8.22"

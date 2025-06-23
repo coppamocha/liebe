@@ -40,11 +40,13 @@ fn read_child_stderr_lines(stderr: Option<ChildStderr>) {
 struct Task {
     proc: Child,
     completed: bool,
+    cmd_str: String,
 }
 
 impl Task {
     pub fn run(cmd: CommandStr) -> Self {
-        println!("Spawning command: {}", cmd.join(" "));
+        let cmd_str = cmd.join(" ");
+        println!("Spawning command: {}", cmd_str);
         let proc = Command::new(cmd[0].clone())
             .args(&cmd[1..])
             .stdout(Stdio::piped())
@@ -53,6 +55,7 @@ impl Task {
             .log("Cannot spawn child process");
         Self {
             proc,
+            cmd_str,
             completed: false,
         }
     }
@@ -61,7 +64,11 @@ impl Task {
             Ok(Some(code)) => {
                 read_child_stdout_lines(self.proc.stdout.take());
                 read_child_stderr_lines(self.proc.stderr.take());
-                println!("Process exited with {}", code.code().unwrap_or_default());
+                println!(
+                    "Process `{}` exited with {}",
+                    self.cmd_str,
+                    code.code().unwrap_or_default()
+                );
                 true
             }
             Err(e) => {
