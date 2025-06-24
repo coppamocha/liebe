@@ -1,10 +1,9 @@
-use std::any::TypeId;
-
 pub struct ExportedFn {
-    module: &'static str,
-    name: &'static str,
-    function: *const (),
-    typeid: TypeId,
+    pub module: &'static str,
+    pub name: &'static str,
+    pub function: *const (),
 }
 unsafe impl Sync for ExportedFn {}
 inventory::collect!(ExportedFn);
+
+pub fn init() {}

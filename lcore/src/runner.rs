@@ -4,7 +4,7 @@ use std::process::{Child, ChildStderr, Command, Stdio, exit};
 use std::thread::sleep;
 use std::time::Duration;
 
-use crate::error::ExitOnError;
+use crate::error::{ExitOnError, LiebeError};
 use crate::stage::BuildStage;
 use std::io::{BufRead, BufReader};
 use std::process::ChildStdout;
@@ -52,7 +52,7 @@ impl Task {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
-            .log("Cannot spawn child process");
+            .log(LiebeError::CantSpawnChildProc(&cmd_str));
         Self {
             proc,
             cmd_str,

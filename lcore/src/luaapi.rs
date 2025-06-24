@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 coppamocha
-use crate::error::ExitOnError;
+use crate::empty_err;
+use crate::error::*;
 use crate::utils::{self, *};
 use mlua::prelude::*;
+use std::fmt::Debug;
 use std::fs;
 use std::io::Read;
 use toml;
@@ -21,17 +23,18 @@ pub struct LuaApi {
 
 impl LuaApi {
     pub fn new(config_path: &str) -> Self {
+        let config_path = config_path.resolve();
         let mut file =
-            fs::File::open(&resolve_path(config_path)).log("Error opening configuration file");
+            fs::File::open(&config_path).log(LiebeError::CannotOpenFile(config_path.clone()));
         let mut contents = String::new();
         file.read_to_string(&mut contents)
-            .log("Error reading configuration contents");
+            .log(LiebeError::CannotReadFile(config_path));
 
-        let config = toml::from_str(&contents).log("Invalid configuration file");
+        let config = toml::from_str(&contents).log(empty_err!(InvalidConf));
 
         let lua = Lua::new();
         lua.load_std_libs(LuaStdLib::ALL_SAFE)
-            .log("Could not open lua stdlibs");
+            .log(empty_err!(CantOpenStdLibs));
 
         Self { config, lua }
     }
@@ -48,10 +51,13 @@ impl LuaApi {
             utils::search_file_in_dirs(SEARCH_DIRS, lang_script)
                 .expect("Error: couldnt find lang-script file"),
         )
-        .log("Cannot open lang-script file");
+        .log(LiebeError::CannotOpenFile(format!(
+            "{} in {:?}",
+            lang_script, SEARCH_DIRS
+        )));
 
         file.read_to_string(&mut contents)
-            .log("Cannot read from lang-script file");
+            .log(LiebeError::CannotReadFile(lang_script.to_string()));
 
         self.lua
             .load(contents)
@@ -61,28 +67,26 @@ impl LuaApi {
 
     pub fn request_data<G>(&self, func: &str) -> G
     where
-        G: FromLuaMulti,
+        G: FromLuaMulti + Debug,
     {
         let luafn: mlua::Function = self
             .lua
             .globals()
             .get(func)
-            .log("Couldnt find a necessary function inside lang-script");
+            .log(LiebeError::FuncNotFound(func.to_string()));
         luafn
             .call::<G>(())
-            .log("Error running a lang-script callback function")
+            .log(LiebeError::CannotCallFunc(func.to_string()))
     }
 
     pub fn add_context(&self, name: &str, data: mlua::Table) {
         self.lua
             .globals()
             .set(name, data)
-            .log("Couldnt inject global context");
+            .log(LiebeError::CannotInjectContext(name.to_string()));
     }
 
     pub fn create_table(&self) -> mlua::Table {
-        self.lua
-            .create_table()
-            .log("Error creating a context table")
+        self.lua.create_table().log(empty_err!(CannotCreateTable))
     }
 }

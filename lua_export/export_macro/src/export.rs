@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 coppamocha
-use export_core::ExportedFn;
 use proc_macro::TokenStream;
 use quote::{ToTokens, quote};
-use syn::{
-    ItemFn, LitStr, ReturnType, Token, parse::Parser, parse_macro_input, punctuated::Punctuated,
-};
+use syn::{ItemFn, LitStr, Token, parse::Parser, parse_macro_input, punctuated::Punctuated};
 
-pub fn mlua_export(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn lua_export(attr: TokenStream, item: TokenStream) -> TokenStream {
     let res = Punctuated::<LitStr, Token![,]>::parse_terminated.parse2(attr.into());
     let Ok(args) = res else {
         return res
@@ -36,37 +33,12 @@ pub fn mlua_export(attr: TokenStream, item: TokenStream) -> TokenStream {
     let name = &sig.ident;
     let block = &input_fn.block;
 
-    let arg_types: Vec<_> = sig
-        .inputs
-        .iter()
-        .filter_map(|arg| {
-            match arg {
-                syn::FnArg::Typed(pat_ty) => Some(&*pat_ty.ty),
-                _ => None, // skip `self`
-            }
-        })
-        .collect();
-
-    let ret_type = match &sig.output {
-        ReturnType::Type(_, ty) => quote! { #ty },
-        ReturnType::Default => quote! { () },
-    };
-
-    let fn_type = quote! {
-        fn(#(#arg_types),*) -> #ret_type
-    };
-
-    let type_id = quote! {
-        ::std::any::TypeId::of::<#fn_type>()
-    };
-
     let register = quote! {
-        inventory::submit! {
-            ExportedFn {
+        ::lua_export::inventory::submit! {
+            ::lua_export::ExportedFn {
                 module: #mod_name,
                 name: #func_name,
                 function: #name as *const (),
-                type_id: #type_id,
             }
         }
     };
@@ -74,7 +46,7 @@ pub fn mlua_export(attr: TokenStream, item: TokenStream) -> TokenStream {
         #vis #sig {
             #block
         }
+        #register
     };
-
     TokenStream::from(expanded)
 }

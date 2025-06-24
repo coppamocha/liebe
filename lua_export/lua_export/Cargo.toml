@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 export_macro = { path = "../export_macro" }
 export_core = { path = "../export_core" }
+inventory = "0.3.20"
