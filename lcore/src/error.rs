@@ -20,6 +20,8 @@ pub trait ExitOnError<T, E: Error> {
     fn log(self, msg: &str) -> T;
 }
 
+pub enum LiebeError {}
+
 impl<T, E> ExitOnError<T, E> for anyhow::Result<T, E>
 where
     E: Display + Error,

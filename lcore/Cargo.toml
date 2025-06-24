@@ -7,4 +7,5 @@ edition = "2024"
 anyhow = "1.0.98"
 clap = "4.5.38"
 mlua = { version = "0.10.3", features = ["anyhow", "luajit"] }
+lua_export = { path = "../lua_export/lua_export" }
 toml = "0.8.22"

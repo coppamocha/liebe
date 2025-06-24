@@ -141,6 +141,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
+name = "export_core"
+version = "0.1.0"
+dependencies = [
+ "inventory",
+]
+
+[[package]]
+name = "export_macro"
+version = "0.1.0"
+dependencies = [
+ "export_core",
+ "inventory",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -157,6 +175,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "inventory"
+version = "0.3.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab08d7cd2c5897f2c949e5383ea7c7db03fb19130ffcfbf7eda795137ae3cb83"
+dependencies = [
+ "rustversion",
+]
+
+[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -168,6 +195,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "lua_export",
  "mlua",
  "toml",
 ]
@@ -194,6 +222,14 @@ checksum = "96936507f153605bddfcda068dd804796c84324ed2510809e5b2a624c81da765"
 dependencies = [
  "autocfg",
  "scopeguard",
+]
+
+[[package]]
+name = "lua_export"
+version = "0.1.0"
+dependencies = [
+ "export_core",
+ "export_macro",
 ]
 
 [[package]]
@@ -228,10 +264,6 @@ dependencies = [
  "cfg-if",
  "pkg-config",
 ]
-
-[[package]]
-name = "mlua_export"
-version = "0.1.0"
 
 [[package]]
 name = "num-traits"

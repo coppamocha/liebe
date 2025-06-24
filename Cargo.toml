@@ -1,7 +1,10 @@
 [workspace]
-members = [ "liebe",
-    "lcore", # liebe_core 
-    "mlua_export"
+members = [
+    "liebe",
+    "lcore", # liebe_core
+    "lua_export/export_macro",
+    "lua_export/lua_export",
+    "lua_export/export_core"
 ]
 resolver = "2"
 
