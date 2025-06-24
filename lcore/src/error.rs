@@ -15,16 +15,15 @@ pub fn get_verbose() -> bool {
     unsafe { return VERBOSE }
 }
 
-pub trait ExitOnError<T, E, Q>
+pub trait ExitOnError<T, Q>
 where
-    E: error::Error,
     T: Debug,
     Q: AsRef<str> + Display,
 {
     fn log(self, e: LiebeError<Q>) -> T;
 }
 
-impl<T, E, Q> ExitOnError<T, E, Q> for Result<T, E>
+impl<T, E, Q> ExitOnError<T, Q> for Result<T, E>
 where
     E: error::Error,
     T: Debug,
@@ -35,8 +34,22 @@ where
             if unsafe { VERBOSE } {
                 eprintln!("{}: {:#?}", e.as_pretty(), self.unwrap_err());
             } else {
-                eprintln!("{}", e);
+                eprintln!("{}", e.as_pretty());
             }
+            exit(1);
+        }
+        self.unwrap()
+    }
+}
+
+impl<T, Q> ExitOnError<T, Q> for Option<T>
+where
+    T: Debug,
+    Q: AsRef<str> + Display,
+{
+    fn log(self, e: LiebeError<Q>) -> T {
+        if self.is_none() {
+            eprintln!("{}", e.as_pretty());
             exit(1);
         }
         self.unwrap()
@@ -73,6 +86,8 @@ where
     FuncNotFound(T),
     #[error("Cannot call lua function")]
     CannotCallFunc(T),
+    #[error("Cannot find a field in configuration")]
+    CantFindFieldInConf(T),
 }
 
 impl<T: AsRef<str> + Display> LiebeError<T> {
@@ -83,6 +98,7 @@ impl<T: AsRef<str> + Display> LiebeError<T> {
             Self::CannotInjectContext(str) => format!("{self}: {str}"),
             Self::FuncNotFound(str) => format!("{self}: {str}"),
             Self::CannotCallFunc(str) => format!("{self}: {str}"),
+            Self::CantFindFieldInConf(str) => format!("{self}: {str}"),
             _ => self.to_string(),
         }
     }

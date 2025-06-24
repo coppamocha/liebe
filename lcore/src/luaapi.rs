@@ -43,14 +43,17 @@ impl LuaApi {
         let lang_script = self
             .config
             .get("lang-script")
-            .expect("Error: expected lang-script field in liebe.toml")
+            .log(LiebeError::CantFindFieldInConf("lang-script"))
             .as_str()
-            .expect("Error: invalid field");
+            .log(empty_err!(InvalidConf));
         let mut contents = String::new();
-        let mut file = fs::File::open(
-            utils::search_file_in_dirs(SEARCH_DIRS, lang_script)
-                .expect("Error: couldnt find lang-script file"),
-        )
+        let mut file = fs::File::open(utils::search_file_in_dirs(SEARCH_DIRS, lang_script).log(
+            LiebeError::CannotOpenFile(format!(
+                "searched in {} for {}",
+                SEARCH_DIRS.join(", ").resolve(),
+                lang_script
+            )),
+        ))
         .log(LiebeError::CannotOpenFile(format!(
             "{} in {:?}",
             lang_script, SEARCH_DIRS
