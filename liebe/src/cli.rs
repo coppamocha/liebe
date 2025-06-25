@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 coppamocha
 use clap::{Arg, ArgAction, ArgMatches, Command};
-use lcore::{
-    error::set_verbose,
-    luaapi::LuaApi,
-    runner::{CommandStr, Runner},
-    stage::BuildStage,
-};
+use lcore::{error::set_verbose, luaapi::LuaApi};
 
 pub const VERSION: &str = "0.1";
 
@@ -39,15 +34,18 @@ impl Cli {
         let context = lua.create_table();
         context
             .set("target", target.to_string())
-            .expect("Couldnt set value to build_cfg");
-        lua.add_context("build_cfg", context);
-        let staged_cmds: Vec<BuildStage> = lua.request_data("create_build_command");
-        for i in staged_cmds {
-            let runner = Runner::new(i);
-            runner.wait();
-        }
+            .expect("Couldnt set value to build_conf");
+        lua.add_context("build_conf", context);
+        lua.call::<()>("build");
     }
-    fn on_run(target: &String, lua: &LuaApi) {}
+    fn on_run(target: &String, lua: &LuaApi) {
+        let context = lua.create_table();
+        context
+            .set("target", target.to_string())
+            .expect("Couldnt set value to run_conf");
+        lua.add_context("run_conf", context);
+        lua.call::<()>("run");
+    }
 
     pub fn parse() -> Self {
         let matches = Command::new("liebe")

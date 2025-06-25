@@ -4,5 +4,5 @@ pub mod error;
 pub mod luaapi;
 pub mod luaexport;
 pub mod runner;
-pub mod stage;
+pub mod slidingvec;
 pub mod utils;

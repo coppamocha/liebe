@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 coppamocha
 const CONFIG_PATH: &str = "$(PWD)/liebe.toml";
-use lcore::error::*;
 use lcore::luaapi;
-use lcore::runner;
 use liebe::cli;
 
 fn main() {
