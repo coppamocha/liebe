@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2025 coppamocha
 pub struct SlidingVec<T> {
     data: Vec<T>,
     top: usize,

@@ -1,6 +1,6 @@
-use std::num::NonZero;
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 coppamocha
+use std::num::NonZero;
 use std::process::{Child, ChildStderr, Command, Stdio, exit};
 use std::thread::sleep;
 use std::time::Duration;
@@ -123,7 +123,7 @@ impl Task {
 
 pub struct Runner {
     tasks: SlidingVec<Task>,
-    max_proc: usize,
+    pub max_proc: usize,
 }
 
 impl Runner {
@@ -151,7 +151,7 @@ impl Runner {
                 if all_done {
                     break;
                 }
-                sleep(Duration::from_millis(100));
+                sleep(Duration::from_millis(20));
             }
         });
         self.tasks.pop_n(self.tasks.iter().len());
