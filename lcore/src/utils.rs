@@ -3,7 +3,6 @@
 use std::env;
 use std::path::Path;
 
-#[lua_export::lua_export("a", "b")]
 pub fn search_file_in_dirs(dirs: &[&str], filename: &str) -> Option<String> {
     for dir in dirs {
         let dir = dir.resolve();

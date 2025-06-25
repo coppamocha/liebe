@@ -2,13 +2,9 @@
 members = [
     "liebe",
     "lcore", # liebe_core
-    "lua_export/export_macro",
-    "lua_export/lua_export",
-    "lua_export/export_core"
 ]
 resolver = "2"
 
 [workspace.dependencies]
 thiserror = "2.0"
-inventory = "0.3"
 mlua = { version = "0.10", features = ["luajit"] }

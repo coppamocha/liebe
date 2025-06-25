@@ -2,6 +2,7 @@
 // Copyright (c) 2025 coppamocha
 use crate::empty_err;
 use crate::error::*;
+use crate::luaexport::LuaExtension;
 use crate::utils::{self, *};
 use mlua::prelude::*;
 use std::fmt::Debug;
@@ -21,6 +22,10 @@ pub struct LuaApi {
     lua: Lua,
 }
 
+fn test(_l: &Lua, _a: LuaMultiValue) -> Result<LuaMultiValue, mlua::Error> {
+    Err(mlua::Error::MemoryControlNotAvailable)
+}
+
 impl LuaApi {
     pub fn new(config_path: &str) -> Self {
         let config_path = config_path.resolve();
@@ -32,9 +37,11 @@ impl LuaApi {
 
         let config = toml::from_str(&contents).log(empty_err!(InvalidConf));
 
-        let lua = Lua::new();
+        let mut lua = Lua::new();
         lua.load_std_libs(LuaStdLib::ALL_SAFE)
             .log(empty_err!(CantOpenStdLibs));
+
+        lua.register_fn(&test, "test", "testmod").unwrap();
 
         Self { config, lua }
     }
