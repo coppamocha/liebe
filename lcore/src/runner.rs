@@ -1,6 +1,6 @@
-use crate::empty_err;
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 coppamocha
+use crate::empty_err;
 use crate::error::{ExitOnError, LiebeError};
 use crate::slidingvec::SlidingVec;
 use std::io::{BufRead, BufReader};
@@ -138,11 +138,26 @@ impl Task {
     }
 }
 
-pub struct RunnerHandle(JoinHandle<Runner>);
+pub struct RunnerHandle(Option<JoinHandle<Runner>>);
 
 impl RunnerHandle {
-    pub fn wait(self) -> Runner {
-        self.0.join().log(empty_err!(ThreadFailedToJoin))
+    pub fn wait(&mut self) -> Runner {
+        self.0
+            .take()
+            .log(empty_err!(ThreadAlreadyJoined))
+            .join()
+            .log(empty_err!(ThreadFailedToJoin))
+    }
+}
+
+impl Drop for RunnerHandle {
+    fn drop(&mut self) {
+        match self.0.take() {
+            Some(handle) => {
+                handle.join().log(empty_err!(ThreadFailedToJoin));
+            }
+            _ => {}
+        }
     }
 }
 
@@ -198,10 +213,10 @@ impl Runner {
     }
 
     pub fn run(mut self) -> RunnerHandle {
-        RunnerHandle(std::thread::spawn(move || {
+        RunnerHandle(Some(std::thread::spawn(move || {
             self.run_sync();
             self
-        }))
+        })))
     }
 
     pub fn get_status(&self) -> RunnerStatus {

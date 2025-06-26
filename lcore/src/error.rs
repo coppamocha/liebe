@@ -89,6 +89,8 @@ where
     CantFindFieldInConf(T),
     #[error("Thread failed to join")]
     ThreadFailedToJoin,
+    #[error("Thread already has been joined")]
+    ThreadAlreadyJoined,
 }
 
 impl<T: AsRef<str> + Display> LiebeError<T> {
