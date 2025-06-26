@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 coppamocha
-use std::error;
 use std::fmt::{Debug, Display};
 use std::process::exit;
 use thiserror::Error;
@@ -25,7 +24,7 @@ where
 
 impl<T, E, Q> ExitOnError<T, Q> for Result<T, E>
 where
-    E: error::Error,
+    E: Debug,
     T: Debug,
     Q: AsRef<str> + Display,
 {
@@ -88,6 +87,8 @@ where
     CannotCallFunc(T),
     #[error("Cannot find a field in configuration")]
     CantFindFieldInConf(T),
+    #[error("Thread failed to join")]
+    ThreadFailedToJoin,
 }
 
 impl<T: AsRef<str> + Display> LiebeError<T> {

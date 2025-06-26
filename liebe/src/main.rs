@@ -18,5 +18,6 @@ fn main() {
     runner.add_task(Task::new(vec!["time".into(), "sleep".into(), "4".into()]));
     runner.add_task(Task::new(vec!["time".into(), "sleep".into(), "5".into()]));
     runner.add_task(Task::new(vec!["time".into(), "sleep".into(), "6".into()]));
-    runner.run();
+    runner = runner.run().wait();
+    println!("{:#?}", runner);
 }

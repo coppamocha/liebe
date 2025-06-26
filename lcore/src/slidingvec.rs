@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 coppamocha
+
+#[derive(Debug)]
 pub struct SlidingVec<T> {
     data: Vec<T>,
     top: usize,
@@ -46,6 +48,22 @@ impl<T> SlidingVec<T> {
 
     pub fn pop_n(&mut self, n: usize) {
         self.top += n;
+    }
+
+    pub fn right(&self) -> &[T] {
+        &self.data[self.top..]
+    }
+
+    pub fn right_mut(&mut self) -> &mut [T] {
+        &mut self.data[self.top..]
+    }
+
+    pub fn left(&self) -> &[T] {
+        &self.data[..self.top]
+    }
+
+    pub fn left_mut(&mut self) -> &mut [T] {
+        &mut self.data[..self.top]
     }
 
     pub fn get_right(&self, id: usize) -> Option<&T> {
